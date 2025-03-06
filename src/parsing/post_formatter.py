@@ -18,6 +18,7 @@ from __future__ import annotations
 from typing import Union, Optional
 from typing_extensions import Final
 
+import re
 import asyncio
 from aiographfix.utils import exceptions
 from aiohttp import ClientError
@@ -423,6 +424,13 @@ class PostFormatter:
 
         feed_title = sub_title or self.feed_title
         title = self.title or 'Untitled'
+        
+        # 移除标题中的方括号及其内容，如 "[亞洲] 苗族姑娘 [27P]" -> "苗族姑娘"
+        if title:
+            title = re.sub(r'\[[^\]]*\]\s*', '', title).strip()
+            # 如果处理后标题为空，则使用原标题
+            if not title:
+                title = self.title or 'Untitled'
 
         # ---- hashtags ----
         tags_html = Text('#' + ' #'.join(tags)).get_html() if tags else None
